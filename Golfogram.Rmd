@@ -1,0 +1,90 @@
+---
+title: "Golfogram"
+output: html_document
+date: "2025-07-28"
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(janitor)
+library(scales)
+library(readxl)
+
+```
+
+## Breaking 100
+
+This plot shows the shots per hole required to break 100 on the following basis:
+
+*  Add two shots over par per holes index 1-9
+*  Add one shot per hole for holes index 10-18
+*  GIOTG is new par minus two shots
+
+GIOTG is Get It On The Green after Golf Sidekick's coaching tips.
+
+
+```{r, echo=FALSE}
+
+stat_fn <- "agk.xls"
+
+dir_src <- "C:/Users/tommy/Documents/Code/SportingInstincts/Data/"
+
+filename <- paste0(dir_src, stat_fn)
+
+course <- read_xls(filename) %>% 
+  clean_names() %>%
+  mutate(b100 = if_else(index < 10, par + 2, par + 1)) %>%
+  mutate(giotg = b100 - 2) 
+
+shots <- course %>% 
+  group_by(hole) %>% 
+  slice(rep(1:n(), each = b100)) %>% 
+  mutate(b100 = rep(1)) %>%
+  group_by(hole) %>%
+  mutate(shots = cumsum(b100)) %>%
+  mutate(b1 = sum(b100)) %>%
+  mutate(shot_type = case_when(shots == 1 ~ 1,
+                               shots == giotg ~ 3,
+                               shots > giotg ~ 4,
+                               .default = 2)) %>%
+  mutate(shot_typ = factor(shot_type,
+                           levels = c(1:4),
+                           labels = c("Tee", "Approach", "GIOTG", "Putt")))
+
+
+```
+
+## Golfogram
+
+Plot visualises the round by shots per hole indicating the breaking 100 par required by types of stroke in terms of tee shot, fairway approach to the green, stroke to get it on the green (GIOTG) and two-putts to finish.
+
+```{r, echo=FALSE}
+
+ggplot() +
+  geom_point(data = shots, 
+             aes(x = hole, y = shots, group = hole, colour = shot_typ),
+             shape = 19, size = 3) +
+  geom_text(data = course, aes(hole, y = 0.65, label = par), size = 3) +
+  geom_text(data = course, aes(hole, y = 0.15, label = index), size = 3) +
+  geom_text(aes(x = 0.2, y = 0.15, label = "Index"), size = 3) +
+  geom_text(aes(x = 0.2, y = 0.65, label = "Par"), size = 3) +
+  scale_x_continuous(breaks = 1:18) +
+  scale_y_continuous(breaks = 1:7) +
+  theme_bw() +
+  labs(title = "Breaking 100 Golfogram", 
+       subtitle = "Alingsås GK shots per hole and stroke type", 
+       caption = "Source: GolfSidekick") +
+  ylab("Shots") +
+  xlab("Hole") + 
+  scale_colour_manual(values = c('white', 'blue', 'green', 'red')) +
+  theme(legend.position = "right",
+        panel.background = element_rect(fill = 'lightgreen', 
+                                        color = 'lightgreen'),
+        panel.grid.major = element_line(color = 'red', linetype = 'dotted'),
+        panel.grid.minor = element_line(color = 'lightgreen', linewidth = 2))
+
+```
+

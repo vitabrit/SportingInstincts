@@ -1,0 +1,168 @@
+---
+title: "Test Batting Records"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(kableExtra)
+library(ggrepel)
+
+```
+
+## Runs scored
+
+Data from ESPN CricInfo's Statsguru on top 50 test batting records.
+
+Source: https://stats.espncricinfo.com/ci/engine/stats/index.html
+
+```{r cars, echo=FALSE}
+
+stat_fn <- "Batting.xls"
+
+dir_src <- "C:/Users/tommy/Documents/Code/SportingInstincts/Data/"
+
+filename <- paste0(dir_src, stat_fn)
+
+stat_file <- read_xls(filename) %>% 
+  clean_names() %>%
+  mutate(lname = str_split_fixed(player, " ", 3)[,2]) %>%
+  mutate(ctry = gsub("\\(|\\)", "", str_split_fixed(player, " ", 3)[,3])) %>%
+  mutate(car_st = as.numeric(substr(span, 1, 4))) %>%
+  mutate(car_end = as.numeric(substr(span, 6, 10))) %>%
+  rowid_to_column("rank") %>%
+  mutate(lname = case_when(lname == "(ICC/PAK)" ~ "Inzamam-ul-Haq",
+                           lname == "de" ~ "de Villiers",
+                           .default = lname)) %>%
+  mutate(ctry = gsub("ICC/", "", ctry)) %>%
+  mutate(ctry = case_when(ctry == "" ~ "PAK",
+                           ctry == "Villiers SA" ~ "SA",
+                           .default = ctry)) %>%
+  mutate(yrspan = car_end - car_st) %>%
+  mutate(mpy = mat / yrspan)
+
+
+plot_data <- stat_file %>%
+  dplyr::select(rank, ctry, lname, car_st, car_end) %>%
+  pivot_longer(.,
+               cols = 4:5,
+               names_to = "career",
+               values_to = "year")
+  
+```
+
+## Plots
+
+Test batting by runs scored with career span and matches played.
+
+
+```{r plot, echo=FALSE}
+
+fig1 <- ggplot() + 
+  geom_point(data = stat_file, aes(x = yrspan, y = runs, size = x100), 
+             shape = 19,
+             colour = "red") +
+  geom_text_repel(data = stat_file, aes(x = yrspan, y = runs, label = lname), 
+            size = 3,
+            colour = "black") +
+  theme_bw() +
+  labs(title = "Top 50 Test Batting Records", 
+       subtitle = "Year career started and runs scored", 
+       caption = "Source: Statsguru") +
+  ylab("Runs") +
+  xlab("Year") + 
+  theme(legend.position = "none",
+        panel.background = element_rect(fill = 'lightgreen', 
+                                        color = 'lightgreen'),
+        panel.grid.major = element_line(color = 'lightgreen', linetype = 'dotted'),
+        panel.grid.minor = element_line(color = 'lightgreen', linewidth = 2))
+
+fig1
+
+```
+
+
+```{r plot, echo=FALSE}
+
+fig2 <- ggplot() + 
+  geom_point(data = stat_file, aes(x = mat, y = runs, size = x100), 
+             shape = 16,
+             colour = "red") +  
+  geom_text(data = stat_file, aes(x = mat, y = runs, label = x100), 
+            size = 3,
+            colour = "white") +
+  geom_text_repel(data = stat_file, aes(x = mat, y = runs, label = lname), 
+            size = 3,
+            colour = "black") +
+  theme_bw() +
+  labs(title = "Top 50 Test Batting Records", 
+       subtitle = "Matches played and runs scored, ball size and number shows 100s", 
+       caption = "Source: Statsguru") +
+  ylab("Runs") +
+  xlab("Matches") + 
+  theme(legend.position = "none",
+        panel.background = element_rect(fill = 'lightgreen', 
+                                        color = 'lightgreen'),
+        panel.grid.major = element_line(color = 'white', linetype = 'dotted'),
+        panel.grid.minor = element_line(color = 'lightgreen', linewidth = 2))
+
+fig2
+
+fig_fn <- "fig2.jpg"
+
+filename <- paste0(dir_src, fig_fn)
+
+ggsave(
+  filename,
+  plot = last_plot(),
+  scale = 1,
+  width = NA,
+  height = NA,
+  dpi = 300,
+  limitsize = TRUE,
+  bg = NULL)
+
+```
+
+
+```{r plot, echo=FALSE}
+
+fig3 <- ggplot() + 
+  geom_line(data = plot_data, aes(x = rank, y = year, group = rank)) +
+  #geom_point(data = stat_file, aes(x = rank, y = car_st, size = mat), 
+  #           shape = 1,
+  #           colour = "red") +
+  #geom_point(data = stat_file, aes(x = rank, y = car_end), 
+  #          shape = 1,
+  #           colour = "red") +
+  geom_text_repel(data = stat_file, aes(x = rank, y = car_st + 5, label = lname), 
+                  vjust = -0.1, 
+                  size = 2) +
+  #geom_text(data = stat_file, aes(x = rank, y = car_st, label = mat), size = 2) +
+  geom_text(data = stat_file, aes(x = rank, y = car_end, label = runs), size = 2) +
+  scale_x_reverse() +
+  theme_bw() +
+  labs(title = "Top 50 Test Batting Records", 
+       subtitle = "Matches played, career span and runs scored", 
+       caption = "Source: Statsguru") +
+  ylab("Year") +
+  xlab("Rank") +
+  coord_flip() + 
+  theme(legend.position = "none",
+        panel.background = element_rect(fill = 'lightgreen', 
+                                        color = 'lightgreen'),
+        panel.grid.major = element_line(color = 'lightgreen', linetype = 'dotted'),
+        panel.grid.minor = element_line(color = 'lightgreen', linewidth = 2)) +
+  facet_wrap(. ~ ctry, nrow = 2)
+
+fig3
+
+
+```
+
+
