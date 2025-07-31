@@ -30,9 +30,9 @@ GIOTG is Get It On The Green after Golf Sidekick's coaching tips.
 
 stat_fn <- "agk.xls"
 
-dir_src <- "./Data/"
+dat_src <- "./Data/"
 
-filename <- paste0(dir_src, stat_fn)
+filename <- paste0(dat_src, stat_fn)
 
 course <- read_xls(filename) %>% 
   clean_names() %>%

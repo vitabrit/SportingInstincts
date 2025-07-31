@@ -13,6 +13,9 @@ library(janitor)
 library(kableExtra)
 library(ggrepel)
 
+dat_src <- "./Data/"
+out_src <- "./Output/"
+
 ```
 
 ## Runs scored
@@ -25,9 +28,7 @@ Source: https://stats.espncricinfo.com/ci/engine/stats/index.html
 
 stat_fn <- "Batting.xls"
 
-dir_src <- "./Data/"
-
-filename <- paste0(dir_src, stat_fn)
+filename <- paste0(dat_src, stat_fn)
 
 stat_file <- read_xls(filename) %>% 
   clean_names() %>%
@@ -115,7 +116,7 @@ fig2
 
 fig_fn <- "fig2.jpg"
 
-filename <- paste0(dir_src, fig_fn)
+filename <- paste0(out_src, fig_fn)
 
 ggsave(
   filename,
