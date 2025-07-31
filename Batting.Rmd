@@ -25,7 +25,7 @@ Source: https://stats.espncricinfo.com/ci/engine/stats/index.html
 
 stat_fn <- "Batting.xls"
 
-dir_src <- "C:/Users/tommy/Documents/Code/SportingInstincts/Data/"
+dir_src <- "./Data/"
 
 filename <- paste0(dir_src, stat_fn)
 

@@ -30,7 +30,7 @@ GIOTG is Get It On The Green after Golf Sidekick's coaching tips.
 
 stat_fn <- "agk.xls"
 
-dir_src <- "C:/Users/tommy/Documents/Code/SportingInstincts/Data/"
+dir_src <- "./Data/"
 
 filename <- paste0(dir_src, stat_fn)
 
