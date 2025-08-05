@@ -17,9 +17,11 @@ out_src <- "./Output/"
 
 ##  Bayesian golf
 
-Each club has a distribution of distance (and width).
+Shots per hole will depend on a stochastic model of distances achieved from the tee shot and each subsequent stroke until a final putt into the hole.
 
-Shots per hole will depend on a stochastic model of distances achieved from each subsequent stroke.
+### The Bag
+
+The bag consists of a range of clubs. Each club has a distribution of distance (and width which is not taken into account here).
 
 
 ```{r, echo=FALSE}
@@ -40,7 +42,9 @@ bag <- tibble(club = factor(clubs,
 
 ```
 
-## Distance distributions
+## Club distance distributions
+
+Mean distances for each club can follow a log-normal distribution, greater than zero and left-skewed.
 
 https://msalganik.wordpress.com/2017/01/21/making-sense-of-the-rlnorm-function-in-r/
 
@@ -95,6 +99,8 @@ fig1
 ```
 
 ### Density plots
+
+Density plots show the distribution of the shots from each club.
 
 ```{r, echo=FALSE}
 
