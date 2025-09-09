@@ -136,7 +136,7 @@ fig2
 
 ggsave("ShotDist.png", 
        plot = fig2,
-           path = "./Output",
+#           path = "./Output",
            scale = 1,
            width = 20,
            height = 10,
