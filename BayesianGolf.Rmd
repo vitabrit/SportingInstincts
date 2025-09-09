@@ -105,25 +105,43 @@ Density plots show the distribution of the shots from each club.
 ```{r, echo=FALSE}
 
 # Change density plot line colors by groups
-fig2 <- ggplot(shot_dist, aes(x = dist, color = club),
-               linesize = 3) +
-  geom_density() +
+fig2 <- ggplot(shot_dist, aes(x = dist, color = club)) +
+  geom_density(linewidth = 3) +
   geom_vline(data = bag, 
              aes(xintercept = mean, color = club),
              linetype="dashed") +
-  scale_colour_brewer(palette = "Set1") +
+  scale_colour_brewer(palette = "Set2") +
   theme_bw() +
   labs(title = "Shot distribution by club", 
-       subtitle = "Log-normal distributions") +
+       subtitle = "Log-normal distributions",
+       colour = "Club") +
   ylab("Yardage") +
   xlab("Density") + 
   theme(legend.position = "right",
-        panel.background = element_rect(fill = 'lightgreen', 
-                                        color = 'lightgreen'),
-        panel.grid.major = element_line(color = 'lightgreen', linetype = 'dotted'),
-        panel.grid.minor = element_line(color = 'lightgreen', linewidth = 2))
+        plot.title = element_text(colour = "white"),
+        axis.title.y = element_text(colour = "white", size = 14),
+        axis.title.x = element_text(colour = "white", size = 14),
+        legend.text = element_text(colour = "white"),
+        legend.title = element_text(colour = "white"),
+        plot.caption = element_text(colour = "white"),
+        plot.background = element_rect(fill = 'darkgreen'), 
+        panel.background = element_rect(fill = 'darkgreen', 
+                                        color = 'darkgreen'),
+        legend.background = element_rect(fill = 'darkgreen', 
+                                         color = 'darkgreen'),
+        panel.grid.major = element_line(color = 'red', linetype = 'dotted'),
+        panel.grid.minor = element_line(color = 'darkgreen', linewidth = 2))
 
 fig2
+
+ggsave("ShotDist.png", 
+       plot = fig2,
+           path = "./Output",
+           scale = 1,
+           width = 20,
+           height = 10,
+           units = "cm",
+           dpi = 100)
 
 ```
 
